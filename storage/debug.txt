@@ -1,0 +1,23 @@
+=== Available Units Debug ===
+Timestamp: 2026-03-31 11:01:59
+Student ID: 9
+Student Name: Rebecca  Zhang
+Student Email: rebecca@gmail.com
+----------------------------------------
+Courses count: 2
+Approved Unit IDs: 14, 15
+Pending Unit IDs: none
+----------------------------------------
+COURSES AND UNITS:
+
+Course: Computer Science (ID: 13)
+  Units count: 3
+  - Unit: data structures and algorithms | Code: DTAS3555 | ID: 14 [APPROVED] 
+  - Unit: Software Engineering | Code: SE2176 | ID: 13  
+  - Unit: Web Development | Code: WEB6798 | ID: 12  
+
+Course: Diploma in Business IT (ID: 14)
+  Units count: 1
+  - Unit: Marketting and entrepreneurship | Code: MKT5678 | ID: 15 [APPROVED] 
+
+=== End Debug ===

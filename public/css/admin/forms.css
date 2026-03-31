@@ -1,0 +1,178 @@
+/* public/css/admin/forms.css */
+
+/* Form Container */
+.form-container {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Form Groups */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #4a5568;
+}
+
+.required-star {
+    color: #f56565;
+}
+
+/* Form Inputs */
+.form-input,
+.form-textarea,
+.form-select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #e2e8f0;
+    border-radius: 5px;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.form-input:focus,
+.form-textarea:focus,
+.form-select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-input.error,
+.form-textarea.error,
+.form-select.error {
+    border-color: #f56565;
+}
+
+.form-textarea {
+    height: 100px;
+    resize: vertical;
+}
+
+/* Error Messages */
+.error-message {
+    color: #f56565;
+    font-size: 12px;
+    margin-top: 5px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.error-summary {
+    background: #fff5f5;
+    border: 1px solid #f56565;
+    color: #c53030;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.error-summary strong {
+    display: block;
+    margin-bottom: 10px;
+}
+
+.error-summary ul {
+    margin-left: 20px;
+    margin-bottom: 0;
+}
+
+.error-summary li {
+    margin-bottom: 5px;
+}
+
+/* Help Text */
+.help-text {
+    font-size: 12px;
+    color: #718096;
+    margin-top: 5px;
+}
+
+.help-text a {
+    color: #667eea;
+}
+
+/* Form Actions */
+.form-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 30px;
+}
+
+/* Buttons */
+.btn {
+    padding: 10px 25px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-primary {
+    background: #48bb78;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #38a169;
+}
+
+.btn-secondary {
+    background: #cbd5e0;
+    color: #4a5568;
+}
+
+.btn-secondary:hover {
+    background: #a0aec0;
+}
+
+.btn-edit {
+    background: #4299e1;
+    color: white;
+}
+
+.btn-edit:hover {
+    background: #3182ce;
+}
+
+/* Select2 Custom Styles (if used) */
+.select2-container--default .select2-selection--single {
+    height: 40px;
+    border: 1px solid #e2e8f0;
+    border-radius: 5px;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: 40px;
+    padding-left: 12px;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 38px;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__placeholder {
+    color: #94a3b8;
+}
+
+.select2-dropdown {
+    border: 1px solid #e2e8f0;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.select2-results__option {
+    padding: 8px 12px;
+}
+
+.select2-results__option--highlighted {
+    background: #667eea !important;
+}

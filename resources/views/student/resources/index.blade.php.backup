@@ -1,0 +1,863 @@
+@extends('student.layouts.master')
+
+@section('title', 'Learning Resources')
+@section('page-icon', 'fa-folder-open')
+@section('page-title', 'Learning Resources')
+
+@section('breadcrumb')
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/student/dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Resources</li>
+        </ol>
+    </nav>
+@endsection
+
+@section('content')
+<div class="resources-container">
+    {{-- Header Section --}}
+    <div class="resources-header">
+        <div class="header-content">
+            <h1><i class="fas fa-folder-open"></i> Learning Resources</h1>
+            <p class="subtitle">Access study materials from your enrolled units</p>
+        </div>
+        
+        {{-- Search and Filter --}}
+        <div class="resource-filters">
+            <form method="GET" action="{{ route('student.resources.index') }}" class="filter-form">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" 
+                           name="search" 
+                           placeholder="Search resources..." 
+                           value="{{ request('search') }}">
+                </div>
+                
+                <div class="filter-group">
+                    <select name="unit" class="filter-select">
+                        <option value="">All Units</option>
+                        @foreach($enrolledUnits ?? [] as $unit)
+                            <option value="{{ $unit->code }}" {{ request('unit') == $unit->code ? 'selected' : '' }}>
+                                {{ $unit->code }} - {{ $unit->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    
+                    <select name="type" class="filter-select">
+                        <option value="">All Types</option>
+                        <option value="pdf" {{ request('type') == 'pdf' ? 'selected' : '' }}>PDF Documents</option>
+                        <option value="video" {{ request('type') == 'video' ? 'selected' : '' }}>Videos</option>
+                        <option value="link" {{ request('type') == 'link' ? 'selected' : '' }}>External Links</option>
+                        <option value="document" {{ request('type') == 'document' ? 'selected' : '' }}>Documents</option>
+                    </select>
+                    
+                    <button type="submit" class="btn-filter">
+                        <i class="fas fa-filter"></i> Filter
+                    </button>
+                    
+                    @if(request()->anyFilled(['search', 'unit', 'type']))
+                        <a href="{{ route('student.resources.index') }}" class="btn-clear">
+                            <i class="fas fa-times"></i> Clear
+                        </a>
+                    @endif
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {{-- Stats Summary --}}
+    <div class="resources-stats">
+        <div class="stat-item">
+            <span class="stat-value">{{ $totalResources ?? 0 }}</span>
+            <span class="stat-label">Total Resources</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-value">{{ $recentCount ?? 0 }}</span>
+            <span class="stat-label">Added This Week</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-value">{{ $enrolledUnits->count() ?? 0 }}</span>
+            <span class="stat-label">Your Units</span>
+        </div>
+    </div>
+
+    {{-- Resources Grid --}}
+    <div class="resources-grid">
+        @forelse($resources as $resource)
+            <div class="resource-card">
+                {{-- Resource Type Icon --}}
+                <div class="resource-icon {{ $resource->file_type }}">
+                    @if($resource->file_type === 'pdf')
+                        <i class="fas fa-file-pdf"></i>
+                    @elseif($resource->file_type === 'video')
+                        <i class="fas fa-video"></i>
+                    @elseif($resource->file_type === 'link')
+                        <i class="fas fa-link"></i>
+                    @elseif($resource->file_type === 'document')
+                        <i class="fas fa-file-word"></i>
+                    @else
+                        <i class="fas fa-file-alt"></i>
+                    @endif
+                </div>
+
+                {{-- Resource Content --}}
+                <div class="resource-content">
+                    <div class="resource-header">
+                        <span class="unit-badge">{{ $resource->unit_code }}</span>
+                        <span class="resource-date">
+                            <i class="fas fa-calendar-alt"></i> 
+                            {{ $resource->created_at->diffForHumans() }}
+                        </span>
+                    </div>
+                    
+                    <h3 class="resource-title">
+                        <a href="{{ route('student.resources.viewer', $resource->id) }}" target="_blank">
+                            {{ $resource->title }}
+                        </a>
+                    </h3>
+                    
+                    @if($resource->description)
+                        <p class="resource-description">
+                            {{ Str::limit($resource->description, 100) }}
+                        </p>
+                    @endif
+                    
+                    <div class="resource-meta">
+                        <span class="meta-item">
+                            <i class="fas fa-user"></i> 
+                            {{ $resource->user->name ?? 'Unknown' }}
+                        </span>
+                        
+                        @if($resource->file_name)
+                            <span class="meta-item">
+                                <i class="fas fa-file"></i> 
+                                {{ $resource->file_name }}
+                            </span>
+                        @endif
+                        
+                        <span class="meta-item">
+                            <i class="fas fa-download"></i> 
+                            {{ $resource->downloads_count ?? 0 }} downloads
+                        </span>
+                    </div>
+                    
+                    {{-- Topics Tags - Show "General" if no topic assigned --}}
+                    <div class="resource-topic">
+                        <i class="fas fa-tag"></i> 
+                        @if($resource->topic)
+                            {{ $resource->topic->name }}
+                        @else
+                            General
+                        @endif
+                    </div>
+                </div>
+
+                {{-- Action Buttons --}}
+                <div class="resource-actions">
+                    <a href="{{ route('student.resources.viewer', $resource->id) }}" target="_blank" class="btn-view" title="View Resource">
+                        <i class="fas fa-eye"></i>
+                    </a>
+                    
+                    @if($resource->file_type !== 'link' && $resource->file_path)
+                        <a href="{{ route('student.resources.download', $resource->id) }}" class="btn-download" title="Download">
+                            <i class="fas fa-download"></i>
+                        </a>
+                    @elseif($resource->file_type === 'link' && $resource->url)
+                        <a href="{{ $resource->url }}" target="_blank" class="btn-external" title="Open Link">
+                            <i class="fas fa-external-link-alt"></i>
+                        </a>
+                    @endif
+
+                    <button class="btn-study" data-resource-id="{{ $resource->id }}" title="Mark as Studied">
+                        <i class="fas fa-check-circle"></i>
+                    </button>
+                </div>
+            </div>
+        @empty
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-folder-open"></i>
+                </div>
+                <h3>No Resources Found</h3>
+                <p>
+                    @if(request()->anyFilled(['search', 'unit', 'type']))
+                        No resources match your filters. Try adjusting your search criteria.
+                    @else
+                        There are no resources available in your enrolled units yet.
+                    @endif
+                </p>
+                @if(request()->anyFilled(['search', 'unit', 'type']))
+                    <a href="{{ route('student.resources.index') }}" class="btn-clear-all">
+                        <i class="fas fa-times"></i> Clear All Filters
+                    </a>
+                @endif
+            </div>
+        @endforelse
+    </div>
+
+    {{-- Pagination --}}
+    @if(isset($resources) && method_exists($resources, 'links'))
+        <div class="pagination-container">
+            {{ $resources->withQueryString()->links() }}
+        </div>
+    @endif
+
+    {{-- Resource Categories --}}
+    @if($resourcesByType ?? false)
+    <div class="resource-categories">
+        <h2><i class="fas fa-layer-group"></i> Browse by Category</h2>
+        <div class="categories-grid">
+            <a href="{{ route('student.resources.index', ['type' => 'pdf']) }}" class="category-card pdf">
+                <i class="fas fa-file-pdf"></i>
+                <span>PDF Documents</span>
+                <span class="count">{{ $typeCounts['pdf'] ?? 0 }}</span>
+            </a>
+            
+            <a href="{{ route('student.resources.index', ['type' => 'video']) }}" class="category-card video">
+                <i class="fas fa-video"></i>
+                <span>Videos</span>
+                <span class="count">{{ $typeCounts['video'] ?? 0 }}</span>
+            </a>
+            
+            <a href="{{ route('student.resources.index', ['type' => 'link']) }}" class="category-card link">
+                <i class="fas fa-link"></i>
+                <span>External Links</span>
+                <span class="count">{{ $typeCounts['link'] ?? 0 }}</span>
+            </a>
+            
+            <a href="{{ route('student.resources.index', ['type' => 'document']) }}" class="category-card document">
+                <i class="fas fa-file-word"></i>
+                <span>Documents</span>
+                <span class="count">{{ $typeCounts['document'] ?? 0 }}</span>
+            </a>
+        </div>
+    </div>
+    @endif
+</div>
+@endsection
+
+@push('styles')
+<style>
+.resources-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 24px;
+}
+
+/* Breadcrumb */
+.breadcrumb {
+    background: transparent;
+    padding: 0;
+    margin-bottom: 24px;
+}
+
+.breadcrumb-item a {
+    color: #64748b;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.2s ease;
+}
+
+.breadcrumb-item a:hover {
+    color: #f59e0b;
+}
+
+.breadcrumb-item.active {
+    color: #0f172a;
+    font-weight: 500;
+}
+
+/* Header */
+.resources-header {
+    margin-bottom: 32px;
+}
+
+.header-content h1 {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.header-content h1 i {
+    color: #f59e0b;
+    background: #fffbeb;
+    padding: 8px;
+    border-radius: 14px;
+    font-size: 1.5rem;
+}
+
+.header-content .subtitle {
+    color: #64748b;
+    font-size: 1rem;
+    margin-left: 52px;
+}
+
+/* Filters */
+.resource-filters {
+    background: white;
+    border-radius: 20px;
+    border: 1px solid #f1f5f9;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.filter-form {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+}
+
+.search-box {
+    flex: 2;
+    min-width: 250px;
+    position: relative;
+}
+
+.search-box i {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: 0.9rem;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 12px 16px 12px 42px;
+    border: 2px solid #f1f5f9;
+    border-radius: 16px;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+}
+
+.search-box input:focus {
+    border-color: #f59e0b;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+}
+
+.filter-group {
+    flex: 3;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.filter-select {
+    flex: 1;
+    min-width: 140px;
+    padding: 12px 16px;
+    border: 2px solid #f1f5f9;
+    border-radius: 16px;
+    font-size: 0.95rem;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+}
+
+.filter-select:focus {
+    border-color: #f59e0b;
+    outline: none;
+}
+
+.btn-filter {
+    padding: 12px 24px;
+    background: #f59e0b;
+    color: white;
+    border: none;
+    border-radius: 16px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+.btn-filter:hover {
+    background: #d97706;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 16px rgba(245, 158, 11, 0.2);
+}
+
+.btn-clear {
+    padding: 12px 24px;
+    background: #f1f5f9;
+    color: #475569;
+    border: none;
+    border-radius: 16px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+.btn-clear:hover {
+    background: #e2e8f0;
+    color: #334155;
+}
+
+/* Stats */
+.resources-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 20px;
+    margin-bottom: 32px;
+}
+
+.stat-item {
+    background: white;
+    border-radius: 20px;
+    border: 1px solid #f1f5f9;
+    padding: 20px;
+    text-align: center;
+}
+
+.stat-value {
+    display: block;
+    font-size: 2rem;
+    font-weight: 600;
+    color: #f59e0b;
+    margin-bottom: 4px;
+}
+
+.stat-label {
+    color: #64748b;
+    font-size: 0.85rem;
+}
+
+/* Resources Grid */
+.resources-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 20px;
+    margin-bottom: 32px;
+}
+
+.resource-card {
+    background: white;
+    border-radius: 24px;
+    border: 1px solid #f1f5f9;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+    padding: 20px;
+    display: flex;
+    gap: 16px;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.resource-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.04);
+    border-color: #f59e0b;
+}
+
+.resource-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.resource-icon.pdf {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.resource-icon.video {
+    background: #dbeafe;
+    color: #2563eb;
+}
+
+.resource-icon.link {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.resource-icon.document {
+    background: #e0f2fe;
+    color: #0284c7;
+}
+
+.resource-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.resource-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.unit-badge {
+    background: #f1f5f9;
+    color: #475569;
+    padding: 4px 12px;
+    border-radius: 40px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.resource-date {
+    color: #94a3b8;
+    font-size: 0.7rem;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.resource-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.resource-title a {
+    color: #0f172a;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.resource-title a:hover {
+    color: #f59e0b;
+}
+
+.resource-description {
+    color: #64748b;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    margin-bottom: 12px;
+}
+
+.resource-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 8px;
+    font-size: 0.8rem;
+    color: #64748b;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.meta-item i {
+    color: #f59e0b;
+    font-size: 0.7rem;
+}
+
+.resource-topic {
+    font-size: 0.8rem;
+    color: #f59e0b;
+    background: #fffbeb;
+    padding: 4px 10px;
+    border-radius: 40px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.resource-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    justify-content: flex-start;
+}
+
+.btn-view,
+.btn-download,
+.btn-external,
+.btn-study {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.btn-view {
+    background: #f59e0b;
+    color: white;
+}
+
+.btn-view:hover {
+    background: #d97706;
+    transform: scale(1.05);
+}
+
+.btn-download {
+    background: #10b981;
+    color: white;
+}
+
+.btn-download:hover {
+    background: #059669;
+    transform: scale(1.05);
+}
+
+.btn-external {
+    background: #3b82f6;
+    color: white;
+}
+
+.btn-external:hover {
+    background: #2563eb;
+    transform: scale(1.05);
+}
+
+.btn-study {
+    background: #f1f5f9;
+    color: #64748b;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-study:hover {
+    background: #10b981;
+    color: white;
+    transform: scale(1.05);
+}
+
+.btn-study:disabled {
+    background: #10b981;
+    color: white;
+    cursor: default;
+    transform: none;
+}
+
+/* Empty State */
+.empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    background: white;
+    border-radius: 24px;
+    border: 2px dashed #f1f5f9;
+}
+
+.empty-icon i {
+    font-size: 48px;
+    color: #cbd5e1;
+    margin-bottom: 20px;
+}
+
+.empty-state h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 8px;
+}
+
+.empty-state p {
+    color: #64748b;
+    margin-bottom: 20px;
+}
+
+.btn-clear-all {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 24px;
+    background: #f1f5f9;
+    color: #475569;
+    text-decoration: none;
+    border-radius: 40px;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.btn-clear-all:hover {
+    background: #e2e8f0;
+    color: #334155;
+}
+
+/* Pagination */
+.pagination-container {
+    margin-top: 32px;
+    display: flex;
+    justify-content: center;
+}
+
+/* Categories Section */
+.resource-categories {
+    margin-top: 48px;
+}
+
+.resource-categories h2 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #0f172a;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.resource-categories h2 i {
+    color: #f59e0b;
+}
+
+.categories-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.category-card {
+    background: white;
+    border-radius: 20px;
+    border: 1px solid #f1f5f9;
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.category-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.04);
+}
+
+.category-card i {
+    font-size: 32px;
+}
+
+.category-card span {
+    flex: 1;
+    font-weight: 500;
+    color: #334155;
+}
+
+.category-card .count {
+    background: #f1f5f9;
+    padding: 4px 12px;
+    border-radius: 40px;
+    font-size: 0.85rem;
+    color: #64748b;
+}
+
+.category-card.pdf i { color: #dc2626; }
+.category-card.video i { color: #2563eb; }
+.category-card.link i { color: #d97706; }
+.category-card.document i { color: #0284c7; }
+
+.category-card.pdf:hover { border-color: #dc2626; }
+.category-card.video:hover { border-color: #2563eb; }
+.category-card.link:hover { border-color: #d97706; }
+.category-card.document:hover { border-color: #0284c7; }
+
+/* Responsive */
+@media (max-width: 768px) {
+    .resources-container {
+        padding: 16px;
+    }
+    
+    .filter-form {
+        flex-direction: column;
+    }
+    
+    .search-box,
+    .filter-group {
+        width: 100%;
+    }
+    
+    .filter-group {
+        flex-direction: column;
+    }
+    
+    .resources-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .resource-card {
+        flex-direction: column;
+    }
+    
+    .resource-actions {
+        flex-direction: row;
+        justify-content: flex-end;
+    }
+    
+    .categories-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+@endpush
+
+@push('scripts')
+<script>
+document.querySelectorAll('.btn-study').forEach(button => {
+    button.addEventListener('click', function() {
+        const resourceId = this.getAttribute('data-resource-id');
+        const resourceCard = this.closest('.resource-card');
+        const titleLink = resourceCard?.querySelector('.resource-title a');
+        const resourceTitle = titleLink?.innerText || 'this resource';
+        
+        // Clean confirmation dialog without emojis
+        if (confirm(`Mark "${resourceTitle}" as studied?\n\nThis will add it to your study progress.`)) {
+            const url = '/student/resources/' + resourceId + '/mark-studied';
+            
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ duration: 15 })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Resource marked as studied successfully.');
+                    // Change button style
+                    this.style.background = '#10b981';
+                    this.style.color = 'white';
+                    this.disabled = true;
+                    this.innerHTML = '<i class="fas fa-check"></i>';
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            });
+        }
+    });
+});
+</script>
+@endpush

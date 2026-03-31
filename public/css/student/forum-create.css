@@ -1,0 +1,284 @@
+/* ===== FORUM CREATE PAGE STYLES ===== */
+/* This file contains styles for creating a new forum post */
+
+.create-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 24px;
+}
+
+/* Main Card */
+.create-card {
+    background: white;
+    border-radius: 24px;
+    border: 1px solid #f1f5f9;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+    overflow: hidden;
+}
+
+/* Card Header */
+.card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 32px 24px;
+    text-align: center;
+}
+
+.card-header h2 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    letter-spacing: -0.02em;
+}
+
+.card-header h2 i {
+    background: rgba(255,255,255,0.2);
+    padding: 8px;
+    border-radius: 14px;
+}
+
+.card-header p {
+    color: rgba(255,255,255,0.9);
+    font-size: 1rem;
+    font-weight: 400;
+}
+
+/* Form */
+.create-form {
+    padding: 32px;
+}
+
+/* Form Groups */
+.form-group {
+    margin-bottom: 24px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #0f172a;
+    font-weight: 600;
+    font-size: 0.95rem;
+    letter-spacing: -0.01em;
+}
+
+.form-group label i {
+    color: #f59e0b;
+    margin-right: 8px;
+}
+
+.form-group label .required {
+    color: #ef4444;
+    margin-left: 4px;
+}
+
+/* Form Controls */
+.form-control, .form-select {
+    width: 100%;
+    padding: 14px 18px;
+    border: 2px solid #e2e8f0;
+    border-radius: 16px;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+    background: white;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #f59e0b;
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.1);
+}
+
+.form-control.is-invalid, .form-select.is-invalid {
+    border-color: #ef4444;
+}
+
+textarea.form-control {
+    min-height: 200px;
+    resize: vertical;
+    line-height: 1.6;
+}
+
+/* File Input Styling */
+input[type="file"].form-control {
+    padding: 10px 14px;
+    background: #f8fafc;
+    cursor: pointer;
+}
+
+input[type="file"].form-control:hover {
+    background: #f1f5f9;
+}
+
+/* File Preview */
+.file-preview {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 20px;
+    margin-top: 16px;
+}
+
+.file-preview h4 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #0f172a;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.file-preview h4 i {
+    color: #f59e0b;
+}
+
+.file-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.file-list li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    color: #1e293b;
+}
+
+.file-list li i {
+    color: #f59e0b;
+    width: 20px;
+    font-size: 1rem;
+}
+
+/* Help Text */
+.help-text {
+    margin-top: 8px;
+    color: #64748b;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.help-text i {
+    color: #f59e0b;
+}
+
+/* Error Messages */
+.error-message {
+    color: #ef4444;
+    font-size: 0.85rem;
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.error-summary {
+    background: #fef2f2;
+    border: 1px solid #fee2e2;
+    color: #b91c1c;
+    border-radius: 16px;
+    padding: 20px 24px;
+    margin: 0 32px 24px 32px;
+}
+
+.error-summary strong {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    font-weight: 600;
+}
+
+.error-summary ul {
+    margin-left: 28px;
+    list-style-type: disc;
+}
+
+.error-summary li {
+    margin-bottom: 4px;
+    font-size: 0.9rem;
+}
+
+/* Form Actions */
+.form-actions {
+    display: flex;
+    gap: 16px;
+    justify-content: flex-end;
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid #f1f5f9;
+}
+
+/* Buttons */
+.btn {
+    padding: 12px 32px;
+    border: none;
+    border-radius: 40px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+    box-shadow: 0 8px 20px rgba(245, 158, 11, 0.25);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 28px rgba(245, 158, 11, 0.35);
+}
+
+.btn-secondary {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.btn-secondary:hover {
+    background: #e2e8f0;
+    transform: translateY(-2px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .create-container {
+        padding: 16px;
+    }
+    
+    .create-form {
+        padding: 20px;
+    }
+    
+    .error-summary {
+        margin: 0 20px 20px 20px;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
